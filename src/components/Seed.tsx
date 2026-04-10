@@ -1,7 +1,6 @@
 import React, {useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {savePets} from '../utils/storage';
-import {seedPets} from '../data/seedPets';
 
 /**
  * Dev-only seed route. Visiting /seed will write the seedPets into storage
@@ -12,15 +11,23 @@ export const Seed = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    try {
-      savePets(seedPets);
-      // small delay so storage settles and UI can pick it up
-      setTimeout(() => navigate('/pets'), 150);
-    } catch (err) {
-      // fallback: attempt direct localStorage write
-      try { localStorage.setItem('clinic_pets', JSON.stringify(seedPets)); } catch {}
-      navigate('/pets');
-    }
+    // Fetch the seed data from the public folder at runtime so the module
+    // isn't required during server/build time (fixes Vercel build issues).
+    fetch('/seedPets.json')
+      .then((res) => res.json())
+      .then((data) => {
+        try {
+          savePets(data);
+        } catch (err) {
+          try { localStorage.setItem('clinic_pets', JSON.stringify(data)); } catch {}
+        }
+        // small delay so storage settles and UI can pick it up
+        setTimeout(() => navigate('/pets'), 150);
+      })
+      .catch(() => {
+        // If fetch fails, ensure navigation still occurs
+        navigate('/pets');
+      });
   }, [navigate]);
 
   return (

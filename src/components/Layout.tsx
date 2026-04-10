@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { PawPrint, LayoutDashboard, List, PlusCircle } from 'lucide-react';
 import { cn } from './ui/Input';
+import { Button } from './ui/Button';
+import { savePets } from '../utils/storage';
 
 export const Layout = () => {
   const location = useLocation();
@@ -46,6 +48,26 @@ export const Layout = () => {
             );
           })}
         </nav>
+
+        <div className="px-4 pb-6">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="w-full"
+            onClick={async () => {
+              try {
+                const res = await fetch('/seedPets.json');
+                const data = await res.json();
+                savePets(data);
+              } catch (err) {
+                // fallback: nothing
+              }
+              window.location.reload();
+            }}
+          >
+            Restore Sample Data
+          </Button>
+        </div>
       </aside>
 
       {/* Main Content */}
