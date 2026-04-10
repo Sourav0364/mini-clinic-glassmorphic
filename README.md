@@ -141,16 +141,3 @@ sequenceDiagram
 - Add unit tests for the hook and form validation; add E2E tests (Playwright) for core flows.
 
 ---
-
-## How to render the Mermaid diagrams locally
-
-- GitHub and many Markdown tools render Mermaid. VS Code has Mermaid preview extensions. If your viewer doesn't support Mermaid, you can paste the blocks into the Mermaid Live Editor (https://mermaid.live).
-
----
-
-If you want, I can:
-- Export these diagrams as PNG/SVG files and add them to the repo.
-- Generate a printable one-page PDF readme (slide) with these visuals.
-- Add a short demo script (step-by-step) you can follow in a 3-5 minute walkthrough.
-
-Tell me which of the three you'd like and I'll implement it next.
