@@ -1,6 +1,6 @@
 # LuxePets — System Architecture, Data Flow & Component Mapping
 
-This document provides visual diagrams and a concise mapping of functional components to help you explain the project architecture and runtime flows in interviews. It uses Mermaid diagrams (flowchart TD, sequenceDiagram) for clear, top-down visuals you can paste into markdown viewers that support Mermaid.
+This document provides visual diagrams and a concise mapping of functional components to help you explain the `mini-clinic-glassmorphic` project architecture and runtime flows clearly. It uses Mermaid diagrams (`flowchart TD`, `sequenceDiagram`) for clean, top-down visuals that render in GitHub and other Markdown viewers with Mermaid support.
 
 ---
 
@@ -10,45 +10,39 @@ This document provides visual diagrams and a concise mapping of functional compo
 - Runtime: Browser (Vite dev server during development)
 - Persistence (current): Browser localStorage
 - Core state manager: custom `usePets` hook (local state + persistence)
+- UI context: premium mini-clinic experience with a glassmorphic shell
 
 ---
 
 ## System architecture (top-down)
 
-Paste the following Mermaid block into a markdown viewer that supports Mermaid to render the diagram.
-
 ```mermaid
 flowchart TD
-  subgraph Client
-    A[Browser (React SPA)]
+  subgraph Client["Client"]
+    A["Browser React SPA"]
     A --> B[UI Components]
   end
 
-  subgraph App
-    B --> C[Routing (react-router-dom)]
-    C --> D[Root -> usePets hook]
-    D --> E[UI: Dashboard, PetList, PetForm, PetDetails]
+  subgraph App["Application"]
+    B --> C["Routing react-router-dom"]
+    C --> D["Root with usePets hook"]
+    D --> E["Views: Dashboard, PetList, PetForm, PetDetails"]
   end
 
-  subgraph Storage
-    E --> F[LocalStorage (src/utils/storage.ts)]
+  subgraph Storage["Persistence"]
+    E --> F["localStorage adapter src/utils/storage.ts"]
     D --> F
   end
 
-  subgraph Dev
-    G[Vite Dev Server / Build] --> A
+  subgraph Dev["Development"]
+    G["Vite dev server and build"] --> A
   end
 
-  subgraph OptionalBackend
-    H[API Server (Express / Supabase / Firebase)]
-    D -. optional -> H
-    H --> F[Persisted DB]
+  subgraph OptionalBackend["Optional backend path"]
+    H["API server Express, Supabase, or Firebase"]
+    D -. optional sync .-> H
+    H --> I["Persistent database"]
   end
-
-  style Client fill:#0b1220,stroke:#ffffff,stroke-width:0px,color:#fff
-  style App fill:#111827,stroke:#9ca3af
-  style Storage fill:#111827,stroke:#9ca3af
-  style OptionalBackend fill:#0f172a,stroke:#6ee7b7
 ```
 
 Notes:
@@ -61,19 +55,18 @@ Notes:
 
 ```mermaid
 flowchart TD
-  U[User] -->|interacts| UI[Component (PetForm / PetList / PetDetails)]
-  UI -->|calls| Hook[usePets {addPet, updatePet, deletePet, getPet}]
-  Hook -->|reads/writes| Storage[getPets / savePets (localStorage)]
+  U[User] -->|interacts| UI["Component: PetForm, PetList, or PetDetails"]
+  UI -->|calls| Hook["usePets: addPet, updatePet, deletePet, getPet"]
+  Hook -->|reads or writes| Storage["getPets and savePets via localStorage"]
   Storage -->|returns| Hook
   Hook -->|updates| UI
 
-  %% Example: seed on first run
-  Storage -.empty-> Seed[seedPets.ts]
+  Storage -. seed route or empty state .-> Seed["Seed data from public/seedPets.json"]
   Seed --> Storage
 ```
 
 Explanation:
-- The UI components call methods returned by `usePets`. Those methods mutate React state and persist changes by calling `savePets` (which writes to localStorage). On startup, `usePets` reads `getPets`; if empty, it uses `seedPets` to populate initial data.
+- The UI components call methods returned by `usePets`. Those methods mutate React state and persist changes by calling `savePets`, which writes to localStorage. On startup, `usePets` reads `getPets`; sample data is restored separately through the `/seed` route or the restore action in the sidebar.
 
 ---
 
@@ -86,6 +79,7 @@ sequenceDiagram
   participant H as usePets
   participant S as savePets (storage)
   participant LS as localStorage
+  participant UI as Pet list view
 
   U->>PF: fills form and submits
   PF->>H: addPet(formData)
@@ -95,14 +89,14 @@ sequenceDiagram
   LS-->>S: ok
   S-->>H: ok
   H-->>PF: returns new pet
-  H-->>UI: pets state updated → re-render
+  H-->>UI: pets state updated and list re-renders
   PF-->>U: navigate to /pets (list)
 
 ```
 
 ---
 
-## Functional component mapping (what to show and say in an interview)
+## Functional component mapping
 
 - `src/hooks/usePets.ts`
   - Responsibility: stateful hook that exposes `pets`, `addPet`, `updatePet`, `deletePet`, `getPet`. Handles initial load, seed, and persistence.
@@ -130,7 +124,7 @@ sequenceDiagram
 
 ---
 
-## Visual layout suggestion for a live interview demo
+## Suggested walkthrough
 
 1. Start with the elevator pitch and open the browser to the running app.
 2. Show `src/App.tsx` to explain routing and `Outlet` context provider (how `usePets` is provided to nested routes).
@@ -140,7 +134,7 @@ sequenceDiagram
 
 ---
 
-## Extension ideas (one-liners to propose in interview)
+## Extension ideas
 
 - Swap localStorage for a backend API: create a small adapter that exposes the same `getPets`/`savePets` surface and use it inside `usePets`.
 - Add optimistic updates and conflict resolution for offline-first flows.
@@ -157,6 +151,6 @@ sequenceDiagram
 If you want, I can:
 - Export these diagrams as PNG/SVG files and add them to the repo.
 - Generate a printable one-page PDF readme (slide) with these visuals.
-- Add a short demo script (step-by-step) you can follow in a 3-5 minute interview.
+- Add a short demo script (step-by-step) you can follow in a 3-5 minute walkthrough.
 
 Tell me which of the three you'd like and I'll implement it next.
