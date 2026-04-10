@@ -10,6 +10,7 @@ import { Dashboard } from './components/Dashboard';
 import { PetList } from './components/PetList';
 import { PetForm } from './components/PetForm';
 import { PetDetails } from './components/PetDetails';
+import { Seed } from './components/Seed';
 import { usePets } from './hooks/usePets';
 
 const Root = () => {
@@ -30,6 +31,8 @@ const router = createBrowserRouter([
           { path: 'pets/new', element: <PetForm /> },
           { path: 'pets/:id', element: <PetDetails /> },
           { path: 'pets/:id/edit', element: <PetForm /> },
+          // Seed endpoint: writes seed data to storage and redirects to /pets.
+          { path: 'seed', element: <Seed /> },
         ],
       },
     ],
